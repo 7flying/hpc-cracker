@@ -14,3 +14,17 @@ void sha256(char *string, char outputBuffer[65])
     }
     outputBuffer[64] = 0;
 }
+
+int main(int argc, char **argv)
+{
+    if(argc == 2) {
+        static unsigned char buffer[65];
+        sha256("string", buffer);
+        printf("%s\n", buffer);
+    } else {
+        printf("You must introduce the string of the word you want to hash as parameter.\n");
+        return 1;
+    }
+
+    return 0;
+}
