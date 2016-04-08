@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
-
+#include <unistd.h>
 
 
 unsigned long getKeySpace(unsigned int min, unsigned int max, char *alphabet)
@@ -32,8 +32,25 @@ void crack(unsigned int lower, unsigned int higher, char *alphabet)
     free(candidate);
 }
 
-int main(int argc, char *argv[]) {
-	crack(4, 8, "012345678");
-
-	return 0;
+int main(int argc, char **argv)
+{
+    int opt;
+    char *alph;
+    int high, low;
+    while ((opt = getopt(argc, argv, "h:l:a:")) != -1) {
+        switch (opt) {
+        case 'h':
+            high = atoi(optarg);
+            break;
+        case 'l':
+            low = atoi(optarg);
+            break;
+        case 'a':
+            alph = optarg;
+            break;
+        default:
+            abort();
+        }
+    }
+    printf("high: %d, low: %d, alphabet: %s\n", high, low, alph);
 }
