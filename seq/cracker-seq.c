@@ -53,4 +53,5 @@ int main(int argc, char **argv)
         }
     }
     printf("high: %d, low: %d, alphabet: %s\n", high, low, alph);
+    getKeySpace(low, high, alph);
 }
