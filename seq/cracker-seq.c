@@ -36,8 +36,9 @@ int main(int argc, char **argv)
 {
     int opt;
     char *alph;
+    char *secret;
     int high, low;
-    while ((opt = getopt(argc, argv, "h:l:a:")) != -1) {
+    while ((opt = getopt(argc, argv, "h:l:a:s:")) != -1) {
         switch (opt) {
         case 'h':
             high = atoi(optarg);
@@ -48,10 +49,19 @@ int main(int argc, char **argv)
         case 'a':
             alph = optarg;
             break;
+        case 's':
+            secret = optarg;
+            break;
         default:
             abort();
         }
     }
-    printf("high: %d, low: %d, alphabet: %s\n", high, low, alph);
+    if (argc != 5) {
+        printf("Usage: \n\t%s -h <max num of characters>", argv[0]);
+        printf(" -l <min num of characters>\n\t\t-a <alphabet>");
+        printf(" -s <secret to crack>\n");
+        return 1;
+    }
+    printf("high: %d, low: %d, alphabet: %s, secret: %s\n", high, low, alph, secret);
     getKeySpace(low, high, alph);
 }
