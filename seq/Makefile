@@ -1,5 +1,5 @@
 PROG=cracker-seq
-SRCS=hasher.c cracker-seq.c
+SRCS=../hasher/hasher.c ../common/common.c cracker-seq.c
 LINK=-lcrypto -lm
 
 all:

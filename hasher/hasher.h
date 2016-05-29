@@ -2,11 +2,10 @@
 #define HASHER_H
 
 #include <openssl/sha.h>
-#include <stdio.h>
 #include <string.h>
+#include <stdio.h>
 
 
-
-void sha256(char *string, char outputBuffer[65]);
+void sha256(char *string, char output[65]);
 
 #endif // HASHER_H
