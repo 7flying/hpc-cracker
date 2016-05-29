@@ -20,7 +20,7 @@ void crack(unsigned int low, unsigned int high, char *alphabet, char *secret)
             found = 1;
     }
     if (found) {
-        printf("\n The hash corresponds to '%s'\n", candidate);
+        printf("\n The hash matches '%s'\n", candidate);
     } else {
         printf("\n We could not crack the hash.\n");
     }

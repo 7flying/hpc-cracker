@@ -23,10 +23,8 @@ void crack(unsigned int low, unsigned int high, char *alphabet, char *secret)
         sha256(candidate, hash);
         if (strncmp(secret, hash, 64) == 0) {
             found = 1;
-            printf("\n The hash corresponds to '%s'\n", candidate);
+            printf("\n The hash matches '%s'\n", candidate);
         }
-        int thread_id = omp_get_thread_num();
-        printf("I am thread %d, key %lu, found? %d\n", thread_id, current, found);
         free(candidate);
         candidate = NULL;
     }

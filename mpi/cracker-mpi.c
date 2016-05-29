@@ -7,6 +7,7 @@
 #include <mpi.h>
 
 #define CHUNK 50
+#define DEBUG 0
 
 
 void crack(unsigned int low, unsigned int high, char *alphabet, char *secret)
@@ -59,10 +60,13 @@ int main(int argc, char **argv)
             int found = 0;
             char buf;
             MPI_Status status;
-            printf("\n [M] SIZE: %d\n", size);
-            printf("\n [M] wait until %d", size -1);
+            if (DEBUG) {
+                printf("\n [M] SIZE: %d\n", size);
+                printf("\n [M] wait until %d", size -1);
+            }
             while (num_finished != (size -1)) {
-                printf("\n [M] num finished %d\n", num_finished);
+                if (DEBUG)
+                    printf("\n [M] num finished %d\n", num_finished);
                 // listen for request
                 // if request = k -> wants keys
                 //    send keys if we have and not found, else send ok and num_finished++
@@ -74,33 +78,44 @@ int main(int argc, char **argv)
                          MPI_COMM_WORLD, &status);
                 if (buf == MORE_KEYS) {
                     if (last_key < keyspace && !found) {
-                        MPI_Send(&last_key, 1, MPI_UNSIGNED_LONG, status.MPI_SOURCE,
-                                 0, MPI_COMM_WORLD);
-                        printf(" [M] Master got MORE_KEYS, from %d, sending KEY %lu\n",
-                               status.MPI_SOURCE, last_key);
+                        MPI_Send(&last_key, 1, MPI_UNSIGNED_LONG,
+                                 status.MPI_SOURCE, 0, MPI_COMM_WORLD);
+                        if (DEBUG) {
+                            printf(" [M] Master got MORE_KEYS, from %d, sending KEY %lu\n",
+                                   status.MPI_SOURCE, last_key);
+                        }
                         last_key += CHUNK;
                     } else {
                         MPI_Send(&OK, 1, MPI_CHAR, status.MPI_SOURCE, 2,
                                  MPI_COMM_WORLD);
                         num_finished++;
-                        printf(" [M] Master got MORE_KEYS, from %d, sending QUIT\n",
-                               status.MPI_SOURCE);
+                        if (DEBUG) {
+                            printf(" [M] Master got MORE_KEYS, from %d, sending QUIT\n",
+                                   status.MPI_SOURCE);
+                        }
                     }
                 } else if (buf == KEY_FOUND) {
                     found = 1;
                     num_finished++;
                     MPI_Send(&OK, 1, MPI_CHAR, status.MPI_SOURCE, 2,
                              MPI_COMM_WORLD);
-                    printf(" [M] Master got KEY_FOUND, from %d, sending QUIT\n",
-                           status.MPI_SOURCE);
+                    if (DEBUG) {
+                        printf(" [M] Master got KEY_FOUND, from %d, sending QUIT\n",
+                               status.MPI_SOURCE);
+                    }
                 } else {
                     MPI_Send(&ERROR, 1, MPI_CHAR, status.MPI_SOURCE, 3,
                              MPI_COMM_WORLD);
-                    printf(" [M] Master got UNKNOWN, from %d, sending ERROR\n",
-                           status.MPI_SOURCE);
+                    if (DEBUG) {
+                        printf(" [M] Master got UNKNOWN, from %d, sending ERROR\n",
+                               status.MPI_SOURCE);
+                    }
                 }
             }
-            printf("\n [M] MASTER QUITS \n");
+            if (DEBUG)
+                printf("\n [M] MASTER QUITS \n");
+            if (!found)
+                printf(" We could not crack the hash.\n");
         }
     } else {
         if (argc == 9 && high >= low) {
@@ -118,7 +133,8 @@ int main(int argc, char **argv)
             while (!finished) {
                 unsigned long from = -1;
                 MPI_Send(&MORE_KEYS, 1, MPI_CHAR, 0, 0, MPI_COMM_WORLD);
-                printf(" [%d] request MORE_KEYS\n", rank);
+                if (DEBUG)
+                    printf(" [%d] request MORE_KEYS\n", rank);
                 MPI_Status status;
                 MPI_Recv(&from, 1, MPI_UNSIGNED_LONG, 0, MPI_ANY_TAG,
                          MPI_COMM_WORLD, &status);
@@ -127,8 +143,10 @@ int main(int argc, char **argv)
                 unsigned long init = from;
                 switch (status.MPI_TAG) {
                 case 0:
-                    printf(" [%d] processing from %lu to %lu\n", rank,
+                    if (DEBUG) {
+                        printf(" [%d] processing from %lu to %lu\n", rank,
                            from, init + CHUNK);
+                    }
                     // we got more keys
                     for (from; from < init + CHUNK && !w_found && (from < keyspace); from++) {
                         next_candidate(candidate, from, high, low, alph);
@@ -137,29 +155,37 @@ int main(int argc, char **argv)
                             w_found = 1;
                     }
                     if (w_found) {
-                        printf(" [%d] The hash corresponds to '%s'\n", rank,
-                               candidate);
+                        if (DEBUG) {
+                            printf(" [%d] The hash matches '%s'\n", rank,
+                                   candidate);
+                        } else {
+                            printf(" The hash matches '%s'\n", candidate);
+                        }
                         MPI_Send(&KEY_FOUND, 1, MPI_CHAR, 0, 0,
                                  MPI_COMM_WORLD);
                         char end = 'e';
                         MPI_Recv(&from, 1, MPI_CHAR, 0, MPI_ANY_TAG,
                                  MPI_COMM_WORLD, &status);
                         finished = 1;
-                        printf(" [%d] quiting\n", rank);
+                        if (DEBUG)
+                            printf(" [%d] quiting\n", rank);
                     }
                     break;
                 case 2:
                     // no more keys
                     finished = 1;
-                    printf(" [%d] quiting\n", rank);
+                    if (DEBUG)
+                        printf(" [%d] quiting\n", rank);
                     break;
                 case 3:
                     // there was an error, continue to next loop
-                    printf(" [%d] There was an error\n", rank);
+                    if (DEBUG)
+                        printf(" [%d] There was an error\n", rank);
                     break;
                 default:
                     // the master is crazy, continue to next loop
-                    printf(" [%d] The master is crazy\n", rank);
+                    if (DEBUG)
+                        printf(" [%d] The master is crazy\n", rank);
                     break;
                 }
             }
