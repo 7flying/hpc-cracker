@@ -1,3 +1,11 @@
+# Editor
+*~
+\#*\#
+.\#*
+
+# syntax checker
+.nul
+
 # Object files
 *.o
 *.ko
