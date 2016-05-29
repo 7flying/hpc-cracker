@@ -51,4 +51,5 @@ void next_candidate(char *cand, int index, int high, int low, char *alphabet)
         indexs /= long_alf;
     }
     strcpy(cand, caracters);
+    free(caracters);
 }
