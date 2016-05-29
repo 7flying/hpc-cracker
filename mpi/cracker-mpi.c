@@ -1,6 +1,5 @@
 #include "../hasher/hasher.h"
 #include "../common/common.h"
-#include "cracker-mpi.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -9,15 +8,6 @@
 #define CHUNK 50
 #define DEBUG 0
 
-
-void crack(unsigned int low, unsigned int high, char *alphabet, char *secret)
-{
-    int found = 0;
-    unsigned long current = 0;
-    char hash[65];
-    unsigned long keyspace = get_keyspace(low, high, alphabet);   
-
-}
 
 int main(int argc, char **argv)
 {
