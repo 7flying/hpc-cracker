@@ -64,7 +64,6 @@ int main(int argc, char **argv)
         usage(argv[0]);
         return 1;
     }
-    //printf("high: %d, low: %d, alphabet: %s, secret: %s\n", high, low, alph,
-    //       secret);
     crack(low, high, alph, secret);
+    return 0;
 }
