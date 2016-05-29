@@ -13,8 +13,6 @@ void crack(unsigned int low, unsigned int high, char *alphabet, char *secret)
     unsigned long current = 0;
     char hash[65];
     unsigned long keyspace = get_keyspace(low, high, alphabet);
-    
-   
 
 #pragma omp parallel for private(hash) shared(found)
     for (current = 0; current < keyspace; current++) {
